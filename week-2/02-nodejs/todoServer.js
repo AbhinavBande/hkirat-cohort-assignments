@@ -41,9 +41,68 @@
  */
   const express = require('express');
   const bodyParser = require('body-parser');
+  const uuid = require('uuid')
   
   const app = express();
   
   app.use(bodyParser.json());
+
+  let todos={}
+
+
+  app.get('/todos', function(req, res){
+    let arr=[]
+    Object.entries(todos).forEach(element => {
+      let todo=element[1];
+      todo['id']=element[0];
+      arr.push(todo)
+    });
+    res.status(200)
+      .send(arr);
+  })
+
+  app.get('/todos/:id', function(req, res){
+    let id=req.params.id;
+    if(id in todos){
+      res.status(200)
+      .send(todos[id]);
+    }
+    else{
+      res.sendStatus(404);
+    }
+  })
+
+  app.post('/todos', function(req, res){
+    todo = req.body;
+    id=uuid.v4()
+    todos[id]=todo;
+    res.status(201)
+      .send({
+        'id': id
+      });
+  })
+
+  app.put('/todos/:id', function(req, res){
+    let id=req.params.id;
+    if(id in todos){
+      todos[id]=req.body;
+      res.sendStatus(200);
+    }
+    else{
+      res.sendStatus(404);
+    }
+  })
+
+  app.delete('/todos/:id', function(req, res){
+    let id=req.params.id;
+    if(id in todos){
+      delete todos[id]
+      res.sendStatus(200);
+    }
+    else{
+      res.sendStatus(404);
+    }
+  })
+
   
   module.exports = app;
